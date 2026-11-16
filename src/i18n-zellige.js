@@ -125,6 +125,7 @@ const fr = {
   width: 'Largeur', height: 'Hauteur', diameter: 'Diamètre', capacity: 'Contenance', weight: 'Poids',
   cm: 'cm', g: 'g', ml: 'ml',
   paletteTitle: 'La palette du zellige',
+  paletteText: 'Le bleu de Fès, le vert des fontaines, l’ocre des remparts : les couleurs du Maroc que l’on retrouve sur nos pièces.',
   palette: ['Bleu de Fès', 'Émeraude', 'Safran', 'Terre cuite', 'Ivoire', 'Anthracite'],
   pillars: [
     ['Géométrie', 'Étoiles, rosaces et entrelacs construits par symétrie.'],
@@ -263,6 +264,7 @@ const ar = {
   width: 'العرض', height: 'الارتفاع', diameter: 'القطر', capacity: 'السعة', weight: 'الوزن',
   cm: 'سم', g: 'غ', ml: 'مل',
   paletteTitle: 'ألوان الزليج',
+  paletteText: 'أزرق فاس، أخضر النافورات، ومغرة الأسوار: ألوان المغرب التي تجدها في قطعنا.',
   palette: ['أزرق فاس', 'زمردي', 'زعفراني', 'طيني', 'عاجي', 'فحمي'],
   pillars: [
     ['الهندسة', 'نجوم وورود وتشابكات مبنية على التناظر.'],
@@ -401,6 +403,7 @@ const en = {
   width: 'Width', height: 'Height', diameter: 'Diameter', capacity: 'Capacity', weight: 'Weight',
   cm: 'cm', g: 'g', ml: 'ml',
   paletteTitle: 'The zellige palette',
+  paletteText: 'Fez blue, fountain green, the ochre of the ramparts: the colours of Morocco you will find on our pieces.',
   palette: ['Fez blue', 'Emerald', 'Saffron', 'Terracotta', 'Ivory', 'Charcoal'],
   pillars: [
     ['Geometry', 'Stars, rosettes and interlacing built from symmetry.'],

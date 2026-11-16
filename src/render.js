@@ -227,7 +227,7 @@ ${preload ? `<link rel="preload" as="image" href="${esc(preload)}" fetchpriority
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?${fonts}&display=swap">
-<link rel="stylesheet" href="/assets/style.css?v=z2">
+<link rel="stylesheet" href="/assets/style.css?v=z3">
 <script src="/assets/js-on.js"></script>
 ${pixels ? `<script type="application/json" id="pixels">${JSON.stringify({ ...px, page: track }).replace(/</g, '\\u003c')}</script>
 <script src="/assets/pixels.js?v=1" defer></script>` : ''}
@@ -359,7 +359,9 @@ function sectionHead(title, kicker = '', link = '', linkText = '') {
   return `<div class="section-head reveal">${kicker ? `<p class="kicker">${star('tick-star')}${esc(kicker)}</p>` : ''}<h2>${esc(title)}</h2>${link ? `<a class="more" href="${esc(link)}">${esc(linkText)} ${icon('arrow', 18)}</a>` : ''}</div>`;
 }
 
-const HERO_PHOTOS = ['hero-mugs', 'hero-plate', 'hero-arch'];
+// Hero photos, one per slide. "split" shows the whole photo beside the text on wide screens (a product shot
+// that should not sit under the text veil); the others fill the slide.
+const HERO_PHOTOS = [{ photo: 'hero-giftbox', split: true }, { photo: 'hero-plate' }, { photo: 'hero-arch' }];
 
 export function homePage(ctx, featured, latest) {
   const { lang, categories, settings } = ctx;
@@ -370,8 +372,8 @@ export function homePage(ctx, featured, latest) {
     .map((s, i) => {
       const title = i === 0 ? settings[`hero_title_${lang}`] || s.title : s.title;
       const text = i === 0 ? settings[`hero_text_${lang}`] || s.text : s.text;
-      const photo = HERO_PHOTOS[i];
-      return `<div class="slide${i === 0 ? ' on' : ''}" aria-roledescription="slide" aria-label="${i + 1} / ${t.slides.length}"${i ? ' aria-hidden="true"' : ''}>
+      const { photo, split } = HERO_PHOTOS[i] || HERO_PHOTOS[0];
+      return `<div class="slide${split ? ' split' : ''}${i === 0 ? ' on' : ''}" aria-roledescription="slide" aria-label="${i + 1} / ${t.slides.length}"${i ? ' aria-hidden="true"' : ''}>
       <picture>
         <source media="(min-width: 760px)" srcset="/assets/photos/${photo}-hero.webp">
         <img src="/assets/photos/${photo}.webp" alt="" width="1000" height="1250"${i ? ' loading="lazy"' : ' fetchpriority="high"'}>
@@ -426,8 +428,13 @@ ${latest.length ? `<section class="section wrap">${sectionHead(t.newArrivals, t.
   </div>
 </section>
 <section class="section wrap palette-sec">
-  <div class="section-head reveal center-head">${divider()}<h2>${esc(t.paletteTitle)}</h2></div>
-  <ul class="palette reveal">${['#1E3F8A', '#1E6B57', '#D6A23A', '#B4502F', '#FAF6EE', '#23211F'].map((c, i) => `<li><span style="background:${c}"></span>${esc(t.palette[i])}</li>`).join('')}</ul>
+  <div class="palette-grid">
+    <div class="palette-img reveal"><img src="/assets/photos/palette-bowls.webp" alt="" loading="lazy" width="794" height="794"></div>
+    <div class="palette-body">
+      <div class="section-head reveal center-head">${divider()}<h2>${esc(t.paletteTitle)}</h2>${t.paletteText ? `<p class="lead">${esc(t.paletteText)}</p>` : ''}</div>
+      <ul class="palette reveal">${['#1E3F8A', '#1E6B57', '#D6A23A', '#B4502F', '#FAF6EE', '#23211F'].map((c, i) => `<li><span style="background:${c}"></span>${esc(t.palette[i])}</li>`).join('')}</ul>
+    </div>
+  </div>
 </section>
 ${(() => {
   const seen = new Set();
