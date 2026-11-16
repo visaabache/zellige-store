@@ -1,67 +1,78 @@
-# Dar Zellij: Moroccan zellige e-commerce
+# Dar Zellij: Moroccan zellige ceramics store
 
-A multilingual online boutique (Français · العربية RTL · English) for zellige-inspired ceramics, home decor and gifts, built for the Moroccan market and ready to sell internationally. It includes a full admin dashboard that needs no programming knowledge.
+Live at **https://zellige-store.visa-abache.workers.dev**. Admin at `/admin/`.
 
-**Live:** https://zellige-store.visa-abache.workers.dev · admin at `/admin` (Cloudflare Workers + Neon, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+An online store for zellige-patterned mugs, cups, plates, trays and gift boxes, for customers in Morocco.
 
-> The brand name **Dar Zellij** is a working name: change it in *Admin → Settings → Shop name*.
+- **Arabic (right to left), French and English** at `/ar/`, `/fr/` and `/en/`. Visitors land in their browser's language, and the store remembers the one they pick.
+- **Prices in Moroccan dirhams.** Visitors abroad can see an estimate in their own currency, but they always pay in dirhams.
+- **Cash on delivery only, no customer accounts.** Customers order as guests from the product page or the cart, giving their name, city, address and phone. The store calls to confirm the order.
+- **Delivery fee by city.** The admin sets a default fee, a fee for each city and a free-delivery threshold (500 DH by default). Customers see the fee before they confirm.
+- **Track my order.** The order number (e.g. `261116-XN44`) is the tracking code. Customers enter it on `/fr/track` with their phone number and see:
+  - the order status and its timeline;
+  - the courier and parcel number once the admin adds them;
+  - the history of each status change.
 
-## What's included
+  The confirmation page and emails link straight to the order.
+- **Wishlist**: a heart on every product, saved in the browser with no account needed, with a `/wishlist` page.
+- **Honest craft labels.** Every product says how it is made:
+  - "zellige-inspired design" is the default and makes no handmade claim;
+  - "made by artisans" and "handmade, verified" can only be chosen with a note saying who made the piece, where, and how it was checked;
+  - without that note the store shows "zellige-inspired".
 
-| Area | Highlights |
+  Products can also list materials, care instructions and measurements (width, height, diameter, capacity, weight). The countdown and "only N left" urgency features are off.
+- **Admin** in Arabic, French or English:
+  - orders: status (new → confirmed → shipped → delivered / cancelled / returned), courier and tracking number, WhatsApp and call buttons, internal notes, CSV export;
+  - products, with photos, options such as "Décor", craft label and measurements;
+  - categories, blog, delivery fees and store settings.
+- **Password change** from the admin under Settings → Password. The first password is the `ADMIN_PASSWORD` secret. A new password must be at least 10 characters, with a letter and a digit. It is stored as a PBKDF2 hash, and changing it signs out every other device.
+- **SEO**: pages rendered on the server, keyword titles and descriptions, hreflang between languages, structured data (store, products with the real delivery fee, breadcrumbs, FAQ), a sitemap and robots.txt.
+
+## How it runs
+
+It runs on **Cloudflare Workers** (plain JavaScript, no framework, no build step) with a **D1** database, and fits the free plan. Pages render in a few milliseconds of CPU, so the store does not hit the free plan's limits that took the previous Next.js version down.
+
+| Part | Where |
 |---|---|
-| **Storefront** | Homepage (hero, perks, shop by category, featured collections, bestsellers, craftsmanship story, new arrivals, gifts, testimonials, photo gallery, newsletter), shop with search and filters (category, price, colour, pattern, stock, sort), category, collection and gift pages, product pages (zoomable gallery with lightbox and swipe, variants, stock status, specs, materials and care, *how it is made*, reviews, related products), cart and slide-out cart, wishlist (kept in the browser), guest-only checkout (no customer accounts), order confirmation with a **tracking code**, *Track my order* (code + phone or email), legal pages |
-| **Languages** | FR / AR / EN everywhere: interface, products, categories, collections, pages, emails. Full RTL layout and Arabic fonts. Language switcher keeps the current page. hreflang and per-language canonical URLs |
-| **Morocco** | MAD by default, cash on delivery, CMI card payment (hosted page, signed hash, server-to-server confirmation), bank transfer with RIB shown after ordering, delivery fee per city, free delivery threshold, phone-first checkout |
-| **International** | Country selection, delivery zones (base fee + per kg, free-over, delivery estimates), display currencies (EUR, USD, GBP…), Stripe Checkout for cards outside Morocco |
-| **Admin** (`/admin`) | Dashboard (revenue, orders to process, 14-day chart, low stock, incomplete products, setup checklist), products (FR/AR/EN fields side by side, multiple photos with reordering, variants with their own SKU/stock/price, colours, patterns, dimensions, craft labelling, SEO, draft → preview → publish, duplicate, archive), Excel/CSV import and export, inventory with low-stock alerts, unlimited nested categories, collections (homepage, gifts, scheduled promotions), orders (status, payment, carrier and tracking, notes, customer emails, stock restored on cancel), customers, discount codes, delivery (cities and zones), reviews moderation, testimonials, pages editor, newsletter export, settings, currencies, team |
-| **SEO** | Server-rendered pages, per-page metadata, Open Graph, `Product` / `AggregateOffer` / `BreadcrumbList` / `Store` structured data, multilingual sitemap, robots rules, optimised AVIF/WebP images |
-| **Security** | bcrypt passwords, HMAC-hashed DB sessions, staff/owner roles, rate-limited admin login and forms, same-origin checks, server-side price and stock validation, atomic stock reservation, signed payment callbacks, security headers, RLS enabled on Supabase, formula-safe spreadsheet exports, audit log |
+| Pages, API, admin API | `src/worker.js`, `src/render.js`, `src/admin.js` |
+| Wording (ar/fr/en) | `src/i18n.js`, with the store's own copy in `src/i18n-zellige.js` |
+| Database schema / sample catalogue | `migrations/0001_init.sql`, `seed/catalogue.sql` |
+| Storefront script (cart, checkout, wishlist) | `public/assets/store.js` |
+| Admin app | `public/admin/` |
+| Static files (photos, CSS, JS) | `public/`, served from the `STATIC` KV namespace (`src/static.js`) |
 
-## Honest product labelling
+The static files are kept in Workers KV rather than Workers Static Assets so that they can be deployed from environments whose proxy blocks the assets upload. `npm run upload:static` sends only files that changed, to save the free plan's KV writes. If you add a Static Assets `ASSETS` binding, the worker uses that instead.
 
-Every product has a **How it is made** setting:
-
-- *Zellige-inspired design* or *Artisan-inspired design*: the page explicitly says it makes **no handmade claim**.
-- *Made by artisans* or *Handmade (verified)*: the admin **must** write a craft note (who made it, where, how it was verified), and the form refuses to save without one.
-
-The 12 starter products, built from your photos, are printed designs and use *Zellige-inspired design*. Testimonials are never invented: the homepage section only appears once you publish real ones.
-
-## Stack
-
-Next.js 15 (App Router, Server Actions) · React 19 · TypeScript · Tailwind CSS · Prisma · PostgreSQL (Neon or Supabase) · Cloudflare Workers via OpenNext, Workers KV for files (or Supabase Storage / local disk on Node.js) · fflate (XLSX) · Resend (email) · CMI · Stripe.
-
-## Quick start
+## Run it on your computer
 
 ```bash
-cp .env.example .env          # fill DATABASE_URL, DIRECT_URL, SESSION_SECRET, SEED_ADMIN_*
 npm install
-npm run db:migrate            # create tables
-npm run db:seed               # categories, 12 products, collections, cities, zones, currencies, pages, owner account
-npm run dev                   # http://localhost:3100  ·  admin: http://localhost:3100/admin
+cp .dev.vars.example .dev.vars        # local admin password
+npm run db:migrate:local
+npm run db:seed:local                 # 12 products in 4 categories
+npm run dev                           # http://localhost:8787, admin at /admin/
+npm test
 ```
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` / `build` / `start` | Develop, build, serve (port 3100) |
-| `npm run db:migrate` | Apply migrations |
-| `npm run db:seed` | Seed starter content (idempotent, never overwrites your edits) |
-| `npm run admin:create -- you@mail.ma "Name"` | Create or reset an owner account |
-| `npm run cf:deploy` | Build and deploy to Cloudflare Workers (see docs) |
-| `npm run db:migrate:neon` | Apply migrations to Neon over HTTPS |
-| `npm run backup` | `pg_dump` + local uploads → `./backups` |
-| `npm test` | Unit tests (pricing, discounts, CMI/Stripe signatures, CSV, money) |
-| `npm run lint` / `typecheck` | Static checks |
+## Deploy
 
-## Before going live
+```bash
+export CLOUDFLARE_API_TOKEN=...  CLOUDFLARE_ACCOUNT_ID=...
+npm run db:migrate                    # new migrations only
+npm run deploy                        # uploads changed static files, then deploys the worker
+```
 
-1. **Prices, stock, dimensions and weights**: the seeded values are placeholders (dimensions and weights are left empty; the dashboard lists incomplete products).
-2. **Delivery fees** per city and international zones (*Admin → Delivery*): the seeded fees are examples.
-3. **Exchange rates** (*Settings → Currencies*): approximate, update them regularly.
-4. **Settings**: phone, email, WhatsApp, address, legal name, ICE, RIB/IBAN, social links.
-5. **Legal pages**: templates referring to Law 31-08 (consumer protection, 7-day withdrawal) and Law 09-08 (personal data); have them reviewed and complete your CNDP declaration.
-6. **Payments**: CMI merchant credentials (test on the CMI test platform first), optionally Stripe.
-7. **Email**: a Resend key and a verified sending domain, otherwise emails are only logged.
-8. **Product photos**: the starter photos were taken in-store; replace them with studio shots when you can.
+First time only:
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Supabase, Vercel and Docker, and [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) for day-to-day use (in French).
+```bash
+npx wrangler d1 create zellige-store            # put the id in wrangler.jsonc
+npx wrangler kv namespace create zellige-static # put the id in wrangler.jsonc (binding STATIC)
+npm run db:migrate && npm run db:seed
+npx wrangler secret put ADMIN_PASSWORD
+```
+
+Emails (order confirmation and status updates) are optional: set a `BREVO_API_KEY` secret and the sender address in the admin. The AI description writer in the product form needs an `ANTHROPIC_API_KEY` secret.
+
+## Not included (for later)
+
+Card payment, bank transfer, discount codes, customer reviews and Excel import.
