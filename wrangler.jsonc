@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zellige-store",
+  "main": "cf-worker.ts",
+  "account_id": "81ab4316522f206e49bd94884d21b968",
+  "compatibility_date": "2025-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "kv_namespaces": [
+    // Static build files, served by cf-worker.ts (uploaded by scripts/cf-upload-assets.mjs).
+    { "binding": "STATIC_ASSETS", "id": "4727a3023ddb4287b7667bb40e831d4d" },
+    // Product, category and collection photos uploaded in the admin.
+    { "binding": "MEDIA", "id": "70ae45f5aa294572bd05e216e07ab06e" }
+  ],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  // Non-secret configuration. Secrets (DATABASE_URL, SESSION_SECRET, CMI_*, STRIPE_*, RESEND_API_KEY…) are set with
+  // `npx wrangler secret put NAME` and never committed.
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://zellige-store.visa-abache.workers.dev",
+    "DB_DRIVER": "neon",
+    "CMI_GATEWAY_URL": "https://testpayment.cmi.co.ma/fim/est3Dgate"
+  }
+}

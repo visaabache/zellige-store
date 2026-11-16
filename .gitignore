@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env.local
+storage/
+backups/
+*.tsbuildinfo
+next-env.d.ts
+test-results/
+.open-next
+.wrangler
+.dev.vars
