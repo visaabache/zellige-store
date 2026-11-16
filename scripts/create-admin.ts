@@ -34,7 +34,7 @@ async function ask(q: string): Promise<string> {
     process.exit(1);
   }
   const prisma = new PrismaClient();
-  const passwordHash = await bcrypt.hash(password, 12);
+  const passwordHash = await bcrypt.hash(password, 10);
   const name = nameParts.join(" ") || "Owner";
   await prisma.user.upsert({ where: { email: email.toLowerCase() }, create: { email: email.toLowerCase(), name, role: "ADMIN", passwordHash }, update: { role: "ADMIN", passwordHash, isActive: true } });
   console.log(`✓ ${email} can now sign in at /admin`);

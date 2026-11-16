@@ -2,6 +2,9 @@
 
 Connectez-vous sur **/admin** avec votre e-mail et votre mot de passe.
 
+## Changer votre mot de passe
+Menu de gauche, en bas : **My account & password**. Saisissez le mot de passe actuel, puis le nouveau deux fois (10 caractères minimum, avec au moins une lettre et un chiffre). Les autres appareils connectés à votre compte sont alors déconnectés ; ce navigateur reste connecté.
+
 ## Ajouter un produit
 1. *Produits → + Add product*.
 2. Saisissez le **nom** en français (onglet FR), puis en arabe (عربي) et en anglais (EN). Un point rouge sur un onglet signale une langue vide.

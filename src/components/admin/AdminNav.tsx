@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BarChart3, Boxes, FileText, FolderTree, Layers, LogOut, Mail, Menu, MessageSquareQuote, Package, Settings, ShoppingCart, Star, Tag, Truck, Upload, Users, X, ExternalLink,
+  BarChart3, Boxes, KeyRound, FileText, FolderTree, Layers, LogOut, Mail, Menu, MessageSquareQuote, Package, Settings, ShoppingCart, Star, Tag, Truck, Upload, Users, X, ExternalLink,
 } from "lucide-react";
 import { StarMark } from "../ui/Zellige";
 
@@ -48,6 +48,7 @@ export function AdminNav({ storeName, user, counts, logout }: { storeName: strin
         ))}
       </div>
       <div className="space-y-1 border-t border-white/10 p-3">
+        <Link href="/admin/account" onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${active("/admin/account") ? "bg-white/10 font-semibold text-white" : "text-ivory/75 hover:bg-white/5"}`}><KeyRound className="h-4 w-4" />My account &amp; password</Link>
         <a href="/fr" target="_blank" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-ivory/75 hover:bg-white/5"><ExternalLink className="h-4 w-4" />View store</a>
         <form action={logout}>
           <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ivory/75 hover:bg-white/5"><LogOut className="h-4 w-4" />Sign out · {user.name.split(" ")[0]}</button>

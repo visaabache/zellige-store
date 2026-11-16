@@ -47,6 +47,12 @@ export async function destroySession() {
   jar.delete(SESSION_COOKIE);
 }
 
+/** Signs the user out everywhere except this browser (used after a password change). */
+export async function revokeOtherSessions(userId: string) {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  await prisma.session.deleteMany({ where: { userId, ...(token ? { tokenHash: { not: hashToken(token) } } : {}) } });
+}
+
 export type CurrentUser = {
   id: string;
   email: string;

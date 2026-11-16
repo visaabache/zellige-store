@@ -16,7 +16,7 @@ async function main() {
     if (password.length < 10) throw new Error("SEED_ADMIN_PASSWORD must be at least 10 characters");
     const exists = await prisma.user.findUnique({ where: { email } });
     if (!exists) {
-      await prisma.user.create({ data: { email, name: "Owner", role: "ADMIN", passwordHash: await bcrypt.hash(password, 12) } });
+      await prisma.user.create({ data: { email, name: "Owner", role: "ADMIN", passwordHash: await bcrypt.hash(password, 10) } });
       console.log(`✓ Owner account ${email}`);
     } else if (exists.role !== "ADMIN") {
       await prisma.user.update({ where: { email }, data: { role: "ADMIN" } });
