@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import type { Dict, Locale } from "@/lib/i18n";
 import type { StoreSettings } from "@/lib/settings";

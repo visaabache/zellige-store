@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { AlertTriangle, ArrowRight, CircleDollarSign, Clock, Package, ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { tr } from "@/lib/i18n/config";

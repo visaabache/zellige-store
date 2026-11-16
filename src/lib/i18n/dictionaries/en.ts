@@ -236,6 +236,12 @@ const en = {
     chargedInMad: "Prices are converted for information; the payment is made in Moroccan dirhams (MAD).",
   },
   order: {
+    trackingCode: "Your tracking code",
+    trackingCodeHelp: "Keep this code. With the phone number or email you used, it lets you follow your order at any time on the “Track an order” page.",
+    copy: "Copy",
+    copied: "Copied",
+    trackCta: "Track my order",
+    trackEmailLine: "Tracking code: {number}. Follow your order: {url}",
     thanks: "Thank you, {name}!",
     received: "Your order {number} has been received.",
     confirmEmail: "A confirmation was sent to {email}.",
@@ -326,6 +332,9 @@ const en = {
     payments: "Cash on delivery · Card · Bank transfer",
   },
   common: {
+    busy: "The server is busy. Please try again in a moment.",
+    tryAgain: "Try again",
+    errorTitle: "This page could not load",
     home: "Home",
     loading: "Loading…",
     error: "Something went wrong. Please try again.",

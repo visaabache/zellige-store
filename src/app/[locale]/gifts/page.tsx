@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { notFound } from "next/navigation";
 import { getDict, isLocale, tr } from "@/lib/i18n";
 import { getCollections, getProductList } from "@/lib/catalog";

@@ -15,7 +15,6 @@ import { getDict, htmlLang, dir, isLocale, tr } from "@/lib/i18n";
 import { getSettings } from "@/lib/settings";
 import { getCurrencies, getDisplayCurrency } from "@/lib/currency";
 import { getCategoryTree } from "@/lib/catalog";
-import { getCurrentUser } from "@/lib/auth/session";
 import { siteUrl } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/layout/Header";
@@ -45,7 +44,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = getDict(locale);
-  const [settings, currency, currencies, tree, user] = await Promise.all([getSettings(), getDisplayCurrency(), getCurrencies(), getCategoryTree(), getCurrentUser()]);
+  const [settings, currency, currencies, tree] = await Promise.all([getSettings(), getDisplayCurrency(), getCurrencies(), getCategoryTree()]);
   const nav = tree.slice(0, 6).map((c) => ({ slug: c.slug, name: c.name, children: c.children.map((s) => ({ slug: s.slug, name: s.name })) }));
   return (
     <html lang={htmlLang[locale]} dir={dir(locale)}>
@@ -53,7 +52,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-charcoal focus:px-4 focus:py-2 focus:text-ivory">
           {tr({ en: "Skip to content", fr: "Aller au contenu", ar: "انتقل إلى المحتوى" }, locale)}
         </a>
-        <Providers locale={locale} dict={d} currency={currency} currencies={currencies} loggedIn={!!user}>
+        <Providers locale={locale} dict={d} currency={currency} currencies={currencies}>
           <Suspense>
             <Header storeName={settings.store.name} categories={nav} />
           </Suspense>

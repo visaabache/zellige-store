@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { Dict, I18nText, Locale } from "@/lib/i18n";
 import { formatMoney, type DisplayCurrency } from "@/lib/money";
 
@@ -21,7 +21,6 @@ type StoreCtx = {
   d: Dict;
   currency: DisplayCurrency;
   currencies: DisplayCurrency[];
-  loggedIn: boolean;
   money: (centimes: number) => string;
   t: (v: I18nText | null | undefined) => string;
   href: (path: string) => string;
@@ -68,7 +67,7 @@ export function useCart() {
   return c;
 }
 
-/* ---------- Wishlist (localStorage, synced to the account when signed in) ---------- */
+/* ---------- Wishlist (stored in the browser) ---------- */
 
 type WishCtx = { ids: string[]; has: (id: string) => boolean; toggle: (id: string) => void; ready: boolean };
 const Wish = createContext<WishCtx | null>(null);
@@ -106,14 +105,12 @@ export function Providers({
   dict,
   currency,
   currencies,
-  loggedIn,
 }: {
   children: ReactNode;
   locale: Locale;
   dict: Dict;
   currency: DisplayCurrency;
   currencies: DisplayCurrency[];
-  loggedIn: boolean;
 }) {
   const store = useMemo<StoreCtx>(
     () => ({
@@ -121,12 +118,11 @@ export function Providers({
       d: dict,
       currency,
       currencies,
-      loggedIn,
       money: (c) => formatMoney(c, locale, currency),
       t: (v) => (v ? v[locale]?.trim() || v.fr?.trim() || v.en?.trim() || v.ar?.trim() || "" : ""),
       href: (p) => `/${locale}${p === "/" ? "" : p}`,
     }),
-    [locale, dict, currency, currencies, loggedIn],
+    [locale, dict, currency, currencies],
   );
 
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -173,23 +169,10 @@ export function Providers({
 
   const [ids, setIds] = useState<string[]>([]);
   const [wishReady, setWishReady] = useState(false);
-  const synced = useRef(false);
   useEffect(() => {
-    const local = read<string[]>(WISH_KEY, []);
-    setIds(local);
+    setIds(read<string[]>(WISH_KEY, []));
     setWishReady(true);
-    if (!loggedIn || synced.current) return;
-    synced.current = true;
-    fetch("/api/wishlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ merge: local }) })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j: { ids: string[] } | null) => {
-        if (j?.ids) {
-          setIds(j.ids);
-          write(WISH_KEY, j.ids);
-        }
-      })
-      .catch(() => {});
-  }, [loggedIn]);
+  }, []);
 
   const wish = useMemo<WishCtx>(
     () => ({
@@ -201,12 +184,10 @@ export function Providers({
           const adding = !prev.includes(id);
           const next = adding ? [id, ...prev] : prev.filter((x) => x !== id);
           write(WISH_KEY, next);
-          if (loggedIn)
-            fetch("/api/wishlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(adding ? { add: id } : { remove: id }) }).catch(() => {});
           return next;
         }),
     }),
-    [ids, wishReady, loggedIn],
+    [ids, wishReady],
   );
 
   return (

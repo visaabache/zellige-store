@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { categoryOptions, collectionOptions } from "@/lib/admin-data";
 import { PageHeader } from "@/components/admin/AdminNav";
 import { ProductForm } from "@/components/admin/ProductForm";

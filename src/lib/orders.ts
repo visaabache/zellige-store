@@ -185,6 +185,7 @@ async function notifyOrderPlaced(orderId: string) {
     `${d.order.payment}: ${d.checkout.methods[o.paymentMethod]}`,
     o.paymentMethod === "BANK_TRANSFER" ? `\n${d.order.bankTitle}\n${s.payments.bankHolder}\n${s.payments.bankName}\nRIB: ${s.payments.rib}\nIBAN: ${s.payments.iban}\nSWIFT: ${s.payments.swift}\n${fmt(d.order.bankHelp, { number: o.number })}` : "",
     "",
+    fmt(d.order.trackEmailLine, { number: o.number, url: `${siteUrl()}/${locale}/track?n=${o.number}` }),
     orderUrl(o),
     "",
     s.store.name,

@@ -52,7 +52,12 @@ export function AdminForm({
             else router.refresh();
             if (r?.ok && resetOnSuccess) form.reset();
           } catch (err) {
-            setResult({ error: err instanceof Error && err.message !== "FORBIDDEN" ? err.message : "Not allowed or failed. Reload and try again." });
+            const msg = err instanceof Error ? err.message : "";
+            setResult({
+              error: /unexpected response|fetch|network|failed to fetch/i.test(msg)
+                ? "The server was busy and this request was cut off. Reload the page to check whether it was saved, then try again."
+                : msg && msg !== "FORBIDDEN" ? msg : "Not allowed or failed. Reload and try again.",
+            });
           }
         });
       }}

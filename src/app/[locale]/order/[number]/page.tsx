@@ -1,15 +1,15 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Circle, ExternalLink, AlertTriangle } from "lucide-react";
 import type { OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getDict, isLocale, tr, fmt } from "@/lib/i18n";
-import { getCurrentUser, isStaff } from "@/lib/auth/session";
 import { getSettings } from "@/lib/settings";
 import { formatMoney, MAD } from "@/lib/money";
 import { courierName } from "@/lib/couriers";
 import { countryName } from "@/lib/cart";
+import { CopyButton } from "@/components/ui/CopyButton";
 
 export const metadata = { robots: { index: false } };
 
@@ -24,9 +24,8 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
     include: { items: true, events: { where: { visibleToCustomer: true }, orderBy: { createdAt: "asc" } } },
   });
   if (!order) notFound();
-  const user = await getCurrentUser();
-  const allowed = (sp.t && sp.t === order.accessToken) || (user && (user.id === order.userId || isStaff(user.role)));
-  if (!allowed) notFound();
+  // The secret token in the link (sent by email, or obtained with the tracking code and phone) grants access.
+  if (!sp.t || sp.t !== order.accessToken) notFound();
   const d = getDict(locale);
   const s = await getSettings();
   const m = (c: number) => formatMoney(c, locale, MAD);
@@ -46,6 +45,16 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
         </div>
       )}
       {!fresh && <h1 className="mb-6 font-display text-4xl font-semibold">{order.number}</h1>}
+
+      <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-majorelle/40 bg-majorelle-50 p-6 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-majorelle">{d.order.trackingCode}</p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <p className="font-mono text-2xl font-bold tracking-wider md:text-3xl" dir="ltr">{order.number}</p>
+          <CopyButton text={order.number} label={d.order.copy} done={d.order.copied} />
+        </div>
+        <p className="max-w-md text-sm text-charcoal-600">{d.order.trackingCodeHelp}</p>
+        <Link href={`/${locale}/track?n=${order.number}`} className="btn-outline btn-sm">{d.order.trackCta}</Link>
+      </div>
 
       {awaitingCard && (sp.payment === "failed" || sp.payment === "cancelled" || order.paymentStatus === "FAILED") && (
         <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl bg-terracotta-50 p-5 text-terracotta-700">

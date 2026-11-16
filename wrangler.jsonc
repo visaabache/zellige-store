@@ -14,6 +14,8 @@
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true },
+  // Deployment id: page-cache keys include it, so a new deploy never serves HTML from an older one.
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   // Non-secret configuration. Secrets (DATABASE_URL, SESSION_SECRET, CMI_*, STRIPE_*, RESEND_API_KEY…) are set with
   // `npx wrangler secret put NAME` and never committed.
   "vars": {

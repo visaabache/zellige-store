@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";

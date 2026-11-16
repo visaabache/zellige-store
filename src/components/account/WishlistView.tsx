@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import type { ProductCard } from "@/lib/catalog";

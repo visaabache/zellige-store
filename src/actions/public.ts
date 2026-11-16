@@ -1,15 +1,13 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 import { asLocale } from "@/lib/i18n/config";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { isEmail, normalizePhone } from "@/lib/utils";
-import { getCurrentUser } from "@/lib/auth/session";
 import { CATALOG_TAG } from "@/lib/catalog";
 
-export type FormState = { ok?: boolean; error?: string } | null;
+export type FormState = { ok?: boolean; error?: string; redirect?: string } | null;
 
 export async function subscribeNewsletter(_: FormState, form: FormData): Promise<FormState> {
   const email = String(form.get("email") || "").trim().toLowerCase();
@@ -34,13 +32,12 @@ export async function submitReview(_: FormState, form: FormData): Promise<FormSt
   if (!rateLimit(`review:${await clientIp()}`, 5, 3600_000)) return { error: "rate" };
   const product = await prisma.product.findFirst({ where: { id: productId, status: "PUBLISHED" }, select: { id: true } });
   if (!product) return { error: "invalid" };
-  const user = await getCurrentUser();
-  const contact = user?.email || email;
+  const contact = email;
   const verifiedPurchase = contact
     ? !!(await prisma.orderItem.findFirst({ where: { productId, order: { email: contact, status: "DELIVERED" } }, select: { id: true } }))
     : false;
   await prisma.review.create({
-    data: { productId, userId: user?.id, name, email: contact || null, title: title || null, body, rating, locale, verifiedPurchase },
+    data: { productId, name, email: contact || null, title: title || null, body, rating, locale, verifiedPurchase },
   });
   revalidateTag(CATALOG_TAG);
   return { ok: true };
@@ -58,5 +55,5 @@ export async function trackOrder(_: FormState, form: FormData): Promise<FormStat
     order &&
     (order.email === contact || (phone.length >= 8 && normalizePhone(order.phone).replace(/^\+?212/, "0").endsWith(phone.replace(/^\+?212/, "0").slice(-9))));
   if (!match) return { error: "not_found" };
-  redirect(`/${locale}/order/${order.number}?t=${order.accessToken}`);
+  return { ok: true, redirect: `/${locale}/order/${order.number}?t=${order.accessToken}` };
 }

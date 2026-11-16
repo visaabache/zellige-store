@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { headers } from "next/headers";
 import { getDict, asLocale } from "@/lib/i18n";
 import { ZelligeDivider } from "@/components/ui/Zellige";

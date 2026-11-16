@@ -4,8 +4,6 @@ import { asLocale } from "@/lib/i18n/config";
 import { json, sameOrigin } from "@/lib/http";
 import { createOrder, CheckoutError } from "@/lib/orders";
 import { getCurrencies } from "@/lib/currency";
-import { createSession, getCurrentUser } from "@/lib/auth/session";
-import { hashPassword } from "@/lib/auth/password";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { isEmail, isPhone, normalizePhone, siteUrl } from "@/lib/utils";
 import { convert } from "@/lib/money";
@@ -32,8 +30,6 @@ const schema = z.object({
   locale: z.string(),
   currency: z.string().max(3).optional(),
   expectedTotal: z.number().int().optional(),
-  createAccount: z.boolean().optional(),
-  password: z.string().max(200).optional(),
 });
 
 export async function POST(req: Request) {
@@ -45,18 +41,6 @@ export async function POST(req: Request) {
   const locale = asLocale(input.locale);
   const email = input.email.toLowerCase();
 
-  let user = await getCurrentUser();
-  if (!user && input.createAccount && input.password && input.password.length >= 8) {
-    const exists = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-    if (!exists) {
-      const created = await prisma.user.create({
-        data: { email, name: `${input.firstName} ${input.lastName}`, phone: normalizePhone(input.phone), locale, country: input.country, city: input.cityName, address: input.address, passwordHash: await hashPassword(input.password) },
-      });
-      await createSession(created);
-      user = { id: created.id, email, name: created.name, phone: created.phone, role: created.role, locale, country: created.country, city: created.city, address: created.address };
-    }
-  }
-
   const currency = (await getCurrencies()).find((c) => c.code === input.currency) ?? { code: "MAD", rate: 1, decimals: 2, symbol: "DH" };
   try {
     const order = await createOrder({
@@ -66,7 +50,7 @@ export async function POST(req: Request) {
       locale,
       currency: currency.code,
       exchangeRate: currency.rate,
-      userId: user?.id ?? null,
+      userId: null,
     });
     const orderPage = `/${locale}/order/${order.number}?t=${order.accessToken}`;
     if (order.paymentMethod === "CMI") return json({ ok: true, redirect: `/${locale}/checkout/pay/${order.number}?t=${order.accessToken}` });

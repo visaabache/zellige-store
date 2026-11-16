@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Banknote, Building2, CreditCard, Loader2, Lock, Tag } from "lucide-react";
@@ -12,7 +12,6 @@ import type { I18nText } from "@/lib/i18n/config";
 import { formatMoney, MAD } from "@/lib/money";
 
 type City = { id: string; name: I18nText; fee: number; region: string | null };
-type Prefill = { email?: string; phone?: string | null; name?: string; city?: string | null; address?: string | null; country?: string | null };
 
 function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -28,39 +27,17 @@ function Section({ n, title, children }: { n: number; title: string; children: R
 
 const METHOD_ICON: Record<PaymentMethod, typeof Banknote> = { COD: Banknote, BANK_TRANSFER: Building2, CMI: CreditCard, STRIPE: CreditCard };
 
-export function CheckoutForm({ cities, countries, prefill, loggedIn }: { cities: City[]; countries: { code: string; name: string }[]; prefill: Prefill; loggedIn: boolean }) {
+export function CheckoutForm({ cities, countries }: { cities: City[]; countries: { code: string; name: string }[] }) {
   const { d, money, t, href, locale, currency } = useStore();
   const { lines, ready, clear } = useCart();
   const router = useRouter();
-  const [first, ...rest] = (prefill.name || "").split(" ");
-  const [f, setF] = useState({
-    email: prefill.email || "",
-    phone: prefill.phone || "",
-    firstName: first || "",
-    lastName: rest.join(" "),
-    country: prefill.country && countries.some((c) => c.code === prefill.country) ? prefill.country : "MA",
-    cityId: "",
-    cityName: "",
-    address: prefill.address || "",
-    postalCode: "",
-    notes: "",
-    password: "",
-  });
-  const [createAccount, setCreateAccount] = useState(false);
+  const [f, setF] = useState({ email: "", phone: "", firstName: "", lastName: "", country: "MA", cityId: "", cityName: "", address: "", postalCode: "", notes: "" });
   const [codeInput, setCodeInput] = useState("");
   const [code, setCode] = useState<string | null>(null);
   const [method, setMethod] = useState<PaymentMethod | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isMa = f.country === "MA";
-
-  useEffect(() => {
-    if (prefill.city && isMa) {
-      const match = cities.find((c) => Object.values(c.name).some((n) => n?.toLowerCase() === prefill.city!.toLowerCase()));
-      setF((s) => ({ ...s, cityId: match ? match.id : "other", cityName: match ? "" : prefill.city! }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const { quote, loading } = useQuote({ country: f.country, cityId: isMa ? f.cityId || null : null, code });
   const methods = useMemo(() => quote?.paymentMethods ?? [], [quote]);
@@ -99,8 +76,6 @@ export function CheckoutForm({ cities, countries, prefill, loggedIn }: { cities:
           locale,
           currency: currency.code,
           expectedTotal: quote.totals.total,
-          createAccount: !loggedIn && createAccount,
-          password: createAccount ? f.password : undefined,
         }),
       });
       const j = (await res.json()) as { ok?: boolean; redirect?: string; error?: string };
@@ -134,12 +109,6 @@ export function CheckoutForm({ cities, countries, prefill, loggedIn }: { cities:
   return (
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_400px]">
       <div className="space-y-6">
-        {!loggedIn && (
-          <p className="text-sm text-charcoal-600">
-            {d.checkout.guestNote}{" "}
-            <Link href={href(`/account/login?next=${encodeURIComponent(href("/checkout"))}`)} className="link font-semibold text-majorelle">{d.checkout.signIn}</Link>
-          </p>
-        )}
         <Section n={1} title={d.checkout.contact}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block"><span className="label">{d.checkout.email}</span><input type="email" required autoComplete="email" value={f.email} onChange={set("email")} className="field" /></label>
@@ -216,17 +185,6 @@ export function CheckoutForm({ cities, countries, prefill, loggedIn }: { cities:
                   </label>
                 );
               })}
-            </div>
-          )}
-          {!loggedIn && (
-            <div className="mt-6 border-t border-charcoal/10 pt-5">
-              <label className="flex cursor-pointer items-center gap-3 text-sm">
-                <input type="checkbox" checked={createAccount} onChange={(e) => setCreateAccount(e.target.checked)} className="h-4 w-4 accent-majorelle" />
-                {d.checkout.createAccount}
-              </label>
-              {createAccount && (
-                <label className="mt-3 block max-w-sm"><span className="label">{d.checkout.password}</span><input type="password" minLength={8} required autoComplete="new-password" value={f.password} onChange={set("password")} className="field" /><span className="mt-1 block text-xs text-charcoal-500">{d.account.passwordHint}</span></label>
-              )}
             </div>
           )}
         </Section>

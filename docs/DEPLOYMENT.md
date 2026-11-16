@@ -28,6 +28,11 @@ Add a secret: `npx wrangler secret put RESEND_API_KEY`. Use your own domain: *Wo
 - **Caching**: cached catalog queries run against the database on every request, so admin changes are visible immediately.
 - **Spreadsheets**: XLSX is read and written by `src/lib/xlsx.ts` (pure JavaScript), and an import runs in a single transaction.
 
+### Staying up on Cloudflare
+- **Page cache** (`cf-worker.ts`): anonymous storefront pages are served from KV without running Next.js (≈0.1 s instead of 1–3 s). Each admin save invalidates it; entries also expire after 10 minutes. Filtered/search URLs, order pages and admin pages are never cached.
+- **No link prefetching** (`src/components/ui/Link.tsx`): avoids dozens of background server renders per visit.
+- **Graceful failures**: if Cloudflare cuts a request, forms show "the server is busy" (sign-in and order lookup retry automatically) and pages show a *Try again* screen instead of a crash.
+
 ### Cloudflare Free plan limits
 The free plan allows ~10 ms of CPU and 50 subrequests (database queries) per request, and a 3 MB compressed Worker. The app fits today (Worker ≈ 2.6 MB), but pages take 1–3 s on a cold request and very large imports may hit the CPU limit. **Workers Paid ($5/month)** raises these limits (30 s CPU, 10,000 subrequests, 10 MB) and is recommended before launch.
 

@@ -238,6 +238,12 @@ const fr: Dict = {
     chargedInMad: "Les prix convertis sont indicatifs ; le paiement se fait en dirhams (MAD).",
   },
   order: {
+    trackingCode: "Votre code de suivi",
+    trackingCodeHelp: "Conservez ce code. Avec le téléphone ou l'e-mail utilisé, il vous permet de suivre votre commande à tout moment sur la page « Suivre une commande ».",
+    copy: "Copier",
+    copied: "Copié",
+    trackCta: "Suivre ma commande",
+    trackEmailLine: "Code de suivi : {number}. Suivre la commande : {url}",
     thanks: "Merci, {name} !",
     received: "Votre commande {number} a bien été reçue.",
     confirmEmail: "Une confirmation a été envoyée à {email}.",
@@ -328,6 +334,9 @@ const fr: Dict = {
     payments: "Paiement à la livraison · Carte · Virement",
   },
   common: {
+    busy: "Le serveur est occupé. Merci de réessayer dans un instant.",
+    tryAgain: "Réessayer",
+    errorTitle: "Cette page n'a pas pu se charger",
     home: "Accueil",
     loading: "Chargement…",
     error: "Une erreur est survenue. Merci de réessayer.",

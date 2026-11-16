@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props) {
   return pageMetadata({ locale, path: "/track", title: getDict(locale).order.trackTitle, siteName: s.store.name });
 }
 
-export default async function TrackPage({ params }: Props) {
+export default async function TrackPage({ params, searchParams }: Props & { searchParams: Promise<{ n?: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = getDict(locale);
@@ -21,7 +21,7 @@ export default async function TrackPage({ params }: Props) {
     <div className="container max-w-lg py-14 md:py-20">
       <h1 className="font-display text-4xl font-semibold">{d.order.trackTitle}</h1>
       <p className="mt-3 text-charcoal-600">{d.order.trackText}</p>
-      <TrackForm />
+      <TrackForm defaultNumber={((await searchParams).n || "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 30)} />
     </div>
   );
 }

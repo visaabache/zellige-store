@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import type { ReviewStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { tr } from "@/lib/i18n/config";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { ArrowRight } from "lucide-react";
 
 export function SectionHeader({ eyebrow, title, text, href, linkLabel, center = false }: { eyebrow?: string; title: string; text?: string; href?: string; linkLabel?: string; center?: boolean }) {

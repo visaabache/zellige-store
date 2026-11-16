@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
 import { subscribeNewsletter } from "@/actions/public";
+import { useResilientAction } from "@/lib/use-resilient-action";
 import { useStore } from "../providers";
 
 export function NewsletterForm({ tone = "dark" }: { tone?: "dark" | "light" }) {
   const { d, locale } = useStore();
-  const [state, action, pending] = useActionState(subscribeNewsletter, null);
+  const { state, pending, onSubmit } = useResilientAction(subscribeNewsletter, { retries: 1 });
   if (state?.ok) return <p className={`text-sm font-medium ${tone === "dark" ? "text-saffron" : "text-emerald"}`}>{d.newsletter.thanks}</p>;
   return (
-    <form action={action} className="w-full">
+    <form onSubmit={onSubmit} className="w-full">
       <input type="hidden" name="locale" value={locale} />
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -27,7 +27,7 @@ export function NewsletterForm({ tone = "dark" }: { tone?: "dark" | "light" }) {
           {d.newsletter.subscribe}
         </button>
       </div>
-      {state?.error && <p className="mt-2 text-sm text-terracotta-100" role="alert">{d.newsletter.invalid}</p>}
+      {state?.error && <p className="mt-2 text-sm text-terracotta-100" role="alert">{state.error === "busy" ? d.common.busy : d.newsletter.invalid}</p>}
     </form>
   );
 }

@@ -1,19 +1,20 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { Star } from "lucide-react";
 import { submitReview } from "@/actions/public";
+import { useResilientAction } from "@/lib/use-resilient-action";
 import { useStore } from "../providers";
 
 export function ReviewForm({ productId }: { productId: string }) {
   const { d, locale } = useStore();
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(5);
-  const [state, action, pending] = useActionState(submitReview, null);
+  const { state, pending, onSubmit } = useResilientAction(submitReview);
   if (state?.ok) return <p className="card bg-emerald-50 p-5 text-sm text-emerald-700">{d.product.reviewThanks}</p>;
   if (!open) return <button type="button" onClick={() => setOpen(true)} className="btn-outline">{d.product.writeReview}</button>;
   return (
-    <form action={action} className="card space-y-4 p-5 md:p-6">
+    <form onSubmit={onSubmit} className="card space-y-4 p-5 md:p-6">
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="rating" value={rating} />
@@ -34,7 +35,7 @@ export function ReviewForm({ productId }: { productId: string }) {
       </div>
       <label className="block"><span className="label">{d.product.reviewTitle}</span><input name="title" maxLength={120} className="field" /></label>
       <label className="block"><span className="label">{d.product.reviewBody}</span><textarea name="body" required minLength={5} maxLength={3000} rows={4} className="field" /></label>
-      {state?.error && <p className="text-sm text-terracotta" role="alert">{state.error === "rate" ? d.account.tooMany : d.common.error}</p>}
+      {state?.error && <p className="text-sm text-terracotta" role="alert">{state.error === "rate" ? d.account.tooMany : state.error === "busy" ? d.common.busy : d.common.error}</p>}
       <button className="btn-primary" disabled={pending}>{d.product.submitReview}</button>
     </form>
   );

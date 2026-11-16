@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { tr } from "@/lib/i18n/config";

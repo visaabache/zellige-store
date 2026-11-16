@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Heart, Menu, Search, ShoppingBag, User, X, ChevronDown, Globe } from "lucide-react";
+import { Heart, Menu, Package, Search, ShoppingBag, X, ChevronDown, Globe } from "lucide-react";
 import { useCart, useHydrated, useStore, useWishlist } from "../providers";
 import { StarMark } from "../ui/Zellige";
 import { locales, localeNames, localeShort, type I18nText, type Locale } from "@/lib/i18n/config";
@@ -177,8 +177,8 @@ export function Header({ storeName, categories }: { storeName: string; categorie
               <Heart className="h-5 w-5" />
               {hydrated && wish.ready && wish.ids.length > 0 && <Badge n={wish.ids.length} />}
             </Link>
-            <Link href={href("/account")} className={`${iconBtn} hidden sm:inline-flex`} aria-label={d.nav.account}>
-              <User className="h-5 w-5" />
+            <Link href={href("/track")} className={`${iconBtn} hidden sm:inline-flex`} aria-label={d.nav.track} title={d.nav.track}>
+              <Package className="h-5 w-5" />
             </Link>
             <button type="button" className={iconBtn} onClick={() => setDrawerOpen(true)} aria-label={hydrated ? `${d.nav.cart} (${count})` : d.nav.cart}>
               <ShoppingBag className="h-5 w-5" />
@@ -236,9 +236,8 @@ export function Header({ storeName, categories }: { storeName: string; categorie
                 ))}
               </div>
               <ul className="mt-4 space-y-1 border-t border-charcoal/10 pt-4 text-sm">
-                <li><Link href={href("/account")} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-charcoal/5"><User className="h-4 w-4" />{d.nav.account}</Link></li>
                 <li><Link href={href("/wishlist")} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-charcoal/5"><Heart className="h-4 w-4" />{d.nav.wishlist}</Link></li>
-                <li><Link href={href("/track")} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-charcoal/5"><ShoppingBag className="h-4 w-4" />{d.nav.track}</Link></li>
+                <li><Link href={href("/track")} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-charcoal/5"><Package className="h-4 w-4" />{d.nav.track}</Link></li>
               </ul>
             </nav>
             <div className="border-t border-charcoal/10 p-4">
